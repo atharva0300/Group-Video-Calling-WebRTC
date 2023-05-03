@@ -28,3 +28,10 @@ WebRTC is a set of javascript APIs that allow us to establish peer to peer conne
 
 4. Trickling ICE candidates
 ![](./images/2023-05-03-11-19-27.png)
+
+
+## Links
+1. Creating your own TURN servers : https://gabrieltanner.org/blog/turn-server/
+2. Creating and configuring your own TURN server on Ubuntu : https://ourcodeworld.com/articles/read/1175/how-to-create-and-configure-your-own-stun-turn-server-with-coturn-in-ubuntu-18-04
+3. Agora : https://console.agora.io/projects
+4. Youtube : https://www.youtube.com/watch?v=QsH8FL0952k

@@ -69,8 +69,35 @@ let init = async () => {
 
 let handleMessageFromPeer =  async (message, memberId) => {
     // getting the message and teh memberId 
-    message = JSON.parse(message.text)
+    message = JSON.parse(String(message.text))
     console.log('Message : ' , message)
+
+    // processing offer message
+    if(message.type==='offer'){
+        // if offer is received 
+        // create an answer
+        console.log('message in offer : ' , message)
+        createAnswer(memberId , message.offer)
+    }
+
+    // processing answer message
+    if(message.type==='answer'){
+        // add the answer
+        console.log('answer : ' , message.answer)
+        console.log('message : ' , message)
+        addAnswer(message.answer)
+    }
+
+    // handling ice candidates 
+    if(message.type==='candidate'){
+        // check if we have a peer connection or not 
+        if(peerConnection){
+            // if we have a peer connection 
+            // add the ice candidate 
+            peerConnection.addIceCandidate(message.candidate)
+        }
+    }
+    
 }
 
 let handleUserJoined = async (memberId) => {
@@ -81,8 +108,8 @@ let handleUserJoined = async (memberId) => {
     createOffer(memberId)
 }
 
-// creating a function to offer 
-let createOffer = async (memberId) => {
+let createPeerConnection = async (memberId) => {
+    // creating teh peer connection 
     peerConnection = new RTCPeerConnection(servers)// passing the servers object to provide the info about the stun servers
     // creaitng an object of RTCPeerConnection
 
@@ -115,7 +142,7 @@ let createOffer = async (memberId) => {
         // iterating through all the tracks of the remoteStream
         event.streams[0].getTracks().forEach((track) => {
             // setting to the remoteStream
-            remoteStream.addTrack()
+            remoteStream.addTrack(track)
         })
     }
 
@@ -127,6 +154,13 @@ let createOffer = async (memberId) => {
         }
     } 
 
+}
+
+// creating a function to offer 
+let createOffer = async (memberId) => {
+    
+    // calling the functin to create peer connection 
+    await createPeerConnection(memberId)
 
     let offer = await peerConnection.createOffer()
     // creating an offer
@@ -137,7 +171,7 @@ let createOffer = async (memberId) => {
     console.log('offer : ' , offer)
 
     // acccessing the client object 
-    client.sendMessageToPeer({text : 'Hey!!!'} , memberId)
+    // client.sendMessageToPeer({text : JSON.stringify('Hey!!!')} , memberId)
     // this send teh message to the user with the memberId given 
 
     // sending the message to the peer 
@@ -148,6 +182,36 @@ let createOffer = async (memberId) => {
 
 }
 
+let createAnswer = async (memberId , offer) => {
+    // creating the peerconnection
+    // creating the remote pass 
+    // and almost a lot things in the createOffer 
+    // but a bit differenct than createOffer 
+    await createPeerConnection(memberId)
+    // creating peer connection
+
+    await peerConnection.setRemoteDescription(offer)
+
+    let answer = await peerConnection.createAnswer()
+    
+    // sending the local description for the 2nd peer ( remote peer )
+    await peerConnection.setLocalDescription(answer)
+
+    // when the sending happens
+    // we send back the sdp to peer 1  ( 1st peer )
+    client.sendMessageToPeer({text : JSON.stringify({'type' : 'answer' , 'answer' : answer})} , memberId)
+
+}
+
+
+let addAnswer = async (answer) => {
+    if(!peerConnection.currentRemoteDescription){
+        // if does not have a currentRemoteDescription
+        
+        // set the remote description
+        peerConnection.setRemoteDescription(answer)
+    }
+}
 
 
 
