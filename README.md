@@ -1,6 +1,9 @@
 # Group-Video-Calling-WebRTC
 Group Video calling application using WebRTC
 
+# Alert!!
+Works partially. Under development
+
 # Technologies used 
 - [X] WebRTC
 - [X] Javascript
